@@ -9,7 +9,7 @@ cargo-fuzz = true
 
 [dependencies]
 gix-utils = { version = "^0.5.2", path = "../../gix-utils", features = ["progress"] }
-gix-error = { version = "^0.5.2", path = "../../gix-error" }
+gix-error = { version = "=1.0.0", path = "../../gix-error", features = ["unstable"] }
 libfuzzer-sys = "0.4"
 
 [dependencies.gix-zlib]

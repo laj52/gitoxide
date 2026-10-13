@@ -9,15 +9,15 @@ macro_rules! classification_predicates {
         /// of traversal order. Native sources and nested [`crate::Error`] values are inspected too.
         /// Return `None` if no known classification is found. Other classes remain observable through
         /// [`Self::classify()`]; choosing a dominant class does not make their recovery needs ignorable.
+        #[gix_macros::unstable]
         pub fn dominant_class(&self) -> Option<Class> {
             self.classify().dominant_class()
         }
 
-        /// Return `true` if any stored error or native source has an explicit [`crate::Class::Retryable`] classification.
+        /// Return `true` if any stored error or native source has an explicit retryable classification.
         ///
-        /// [`crate::Message`] and [`crate::ClassificationMarker`] can supply this classification.
-        /// Nested [`crate::Error`] values are inspected recursively. Unlike [`Self::can_retry()`], this does not infer
-        /// retryability from I/O error kinds.
+        /// Nested [`crate::Error`] values are inspected recursively. This does not infer retryability from I/O kinds
+        /// or establish that repeating an operation with side effects is safe.
         pub fn is_retryable(&self) -> bool {
             self.classify().is_retryable()
         }
@@ -28,6 +28,7 @@ macro_rules! classification_predicates {
         /// [`crate::Class::ResourceExhaustion`], [`std::collections::TryReserveError`], and
         /// [`std::io::ErrorKind::OutOfMemory`], including within nested
         /// [`crate::Error`] values.
+        #[gix_macros::unstable]
         pub fn is_resource_exhausted(&self) -> bool {
             self.classify().is_resource_exhausted()
         }
@@ -41,6 +42,7 @@ macro_rules! classification_predicates {
         /// found; it does not guarantee that retrying cannot succeed. Explicit [`crate::Class::Cancelled`]
         /// anywhere in the error tree returns `false`, even alongside retryable causes. A `true` result
         /// does not establish that repeating side effects is safe.
+        #[gix_macros::unstable]
         pub fn can_retry(&self) -> bool {
             self.classify().can_retry()
         }
@@ -51,21 +53,25 @@ macro_rules! classification_predicates {
         /// This applies a more lenient policy than [`Self::can_retry`]. Nested [`crate::Error`] values are inspected recursively.
         /// Explicit [`crate::Class::Cancelled`] anywhere in the error tree returns `false`.
         /// Otherwise `false` only means no known retryable error was found; `true` does not establish retry safety.
+        #[gix_macros::unstable]
         pub fn can_retry_lenient(&self) -> bool {
             self.classify().can_retry_lenient()
         }
 
         /// Return `true` if malformed or internally inconsistent data caused the failure.
+        #[gix_macros::unstable]
         pub fn is_corrupted(&self) -> bool {
             self.classify().is_corrupted()
         }
 
         /// Return `true` if a requested resource was not found.
+        #[gix_macros::unstable]
         pub fn is_not_found(&self) -> bool {
             self.classify().is_not_found()
         }
 
         /// The caller requested cancellation; stop rather than retry.
+        #[gix_macros::unstable]
         pub fn is_cancelled(&self) -> bool {
             self.classify().is_cancelled()
         }
@@ -76,21 +82,25 @@ macro_rules! classification_predicates {
         }
 
         /// Credentials are missing or rejected; obtain or refresh credentials.
+        #[gix_macros::unstable]
         pub fn is_unauthenticated(&self) -> bool {
             self.classify().is_unauthenticated()
         }
 
         /// Current state conflicts with the operation; refresh or reconcile state before retrying.
+        #[gix_macros::unstable]
         pub fn is_conflict(&self) -> bool {
             self.classify().is_conflict()
         }
 
         /// A required capability is unsupported; switch implementation, format, protocol, or strategy.
+        #[gix_macros::unstable]
         pub fn is_unsupported(&self) -> bool {
             self.classify().is_unsupported()
         }
 
         /// Return `true` if invalid input caused the failure.
+        #[gix_macros::unstable]
         pub fn is_validation(&self) -> bool {
             self.classify().is_validation()
         }
@@ -148,6 +158,7 @@ impl crate::Error {
     /// The tree representation reuses its frame allocation.
     /// This also reconstructs explicitly raised frames when `auto-chain-error` is enabled. Native sources remain
     /// owned by their errors and do not become child frames. Use [`crate::Exn::into_error()`] to return to a public boundary.
+    #[gix_macros::unstable]
     pub fn into_exn(self) -> crate::Exn {
         #[cfg(any(feature = "tree-error", not(feature = "auto-chain-error")))]
         {
@@ -164,7 +175,6 @@ impl crate::Error {
     /// The stored error is first unless it is a classification marker. A frame's native source precedes its explicitly
     /// raised children. Concrete error types remain available for downcasting, except for classification markers,
     /// which are always transparent to traversal.
-    /// Use [`Self::classify()`] to inspect classifications.
     pub fn iter_errors(&self) -> impl Iterator<Item = &(dyn std::error::Error + 'static)> + '_ {
         self.iter_errors_with_locations().map(|source| source.error)
     }
@@ -172,6 +182,7 @@ impl crate::Error {
     /// Visit the same errors as [`Self::iter_errors()`], with caller locations for explicitly raised frames.
     /// The first real source beneath transparent classification markers inherits their frame's location; other native
     /// sources have no caller location of their own. [`DisplaySource`] can render either representation.
+    #[gix_macros::unstable]
     pub fn iter_errors_with_locations(&self) -> impl Iterator<Item = DisplaySource<'_>> + '_ {
         Errors::new(self.iter_root())
             .map(Node::display)
@@ -189,6 +200,7 @@ impl crate::Error {
     /// Classification markers are always transparent to selection. Nested error graphs and explicitly raised children
     /// both participate, so a selected boundary at a branch is not replaced by one of its nested causes.
     /// If selection stays at the root, return the stored error, including a classification-only root.
+    #[gix_macros::unstable]
     pub fn probable_cause(&self) -> &(dyn std::error::Error + 'static) {
         self.iter_root().probable_cause().unwrap_or_else(|| self.error())
     }
@@ -200,6 +212,7 @@ impl crate::Error {
     /// To match a class and values on the same message, use [`Self::classify()`] and
     /// [`Classification::error()`](crate::types::Classification::error) instead of combining independent classification
     /// and metadata searches.
+    #[gix_macros::unstable]
     pub fn metadata(&self) -> impl Iterator<Item = &Metadata> + '_ {
         self.iter_errors()
             .filter_map(|error| error.downcast_ref::<crate::Message>())
@@ -213,6 +226,7 @@ impl crate::Error {
     /// Thus, more specific causes override their enclosing contexts. For independent causes, the later-visited
     /// cause wins; merging does not retain which context supplied a value. Use [`Self::metadata()`] instead when
     /// that distinction matters. An error without metadata yields an empty dictionary.
+    #[gix_macros::unstable]
     pub fn metadata_merged(&self) -> Metadata {
         let mut merged = Metadata::new();
         for values in self.metadata() {
@@ -225,6 +239,7 @@ impl crate::Error {
     ///
     /// Unknown errors are omitted. Classifications aren't deduplicated because distinct errors may independently have
     /// the same meaning. Each item retains the classified error for downcasting and origin inspection.
+    #[gix_macros::unstable]
     pub fn classify(&self) -> Classifications<'_> {
         classify(self)
     }
@@ -244,6 +259,7 @@ impl<E: std::error::Error + Send + Sync + 'static> crate::Exn<E> {
     ///
     /// As with [`crate::Error::classify()`], unknown errors are omitted, classifications aren't deduplicated, and each
     /// item retains the classified error for downcasting and origin inspection.
+    #[gix_macros::unstable]
     pub fn classify(&self) -> Classifications<'_> {
         Classifications(Errors::new(Node::Frame(self.frame().source_frame())))
     }
@@ -769,8 +785,7 @@ mod _impl {
 
         /// Return the error stored at this error boundary.
         ///
-        /// This can be a classification marker hidden from [`Self::iter_errors()`], and is distinct from
-        /// [`Self::probable_cause()`].
+        /// This can be a classification marker hidden from [`Self::iter_errors()`].
         pub fn error(&self) -> &(dyn std::error::Error + 'static) {
             self.inner.frame().error()
         }
@@ -828,17 +843,14 @@ mod _impl {
     }
 
     impl std::error::Error for Error {
-        /// Return the first source of an [Exn] error, or the source of a boxed error.
+        /// Return the first source of the stored error.
         fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
             std::error::Error::source(self.inner.frame().source_frame())
         }
     }
 
-    impl<E> From<Exn<E>> for Error
-    where
-        E: std::error::Error + Send + Sync + 'static,
-    {
-        fn from(err: Exn<E>) -> Self {
+    impl Error {
+        pub(crate) fn from_exn<E: std::error::Error + Send + Sync + 'static>(err: Exn<E>) -> Self {
             Error {
                 inner: Inner::Exn(err.into()),
             }
@@ -857,8 +869,7 @@ mod _impl {
     impl Error {
         /// Return the error stored at this error boundary.
         ///
-        /// This can be a classification marker hidden from [`Self::iter_errors()`], and is distinct from
-        /// [`Self::probable_cause()`].
+        /// This can be a classification marker hidden from [`Self::iter_errors()`].
         pub fn error(&self) -> &(dyn std::error::Error + 'static) {
             self.inner.err.error()
         }
@@ -945,7 +956,7 @@ mod _impl {
     }
 
     impl std::error::Error for Error {
-        /// Return the first source of an [Exn] error, or the source of a boxed error.
+        /// Return the first source of the stored error.
         fn source(&self) -> Option<&(dyn std::error::Error + 'static)> {
             let mut root = &self.inner;
             // Display already promotes the first real diagnostic beneath a marker root.
@@ -956,11 +967,8 @@ mod _impl {
         }
     }
 
-    impl<E> From<Exn<E>> for Error
-    where
-        E: std::error::Error + Send + Sync + 'static,
-    {
-        fn from(err: Exn<E>) -> Self {
+    impl Error {
+        pub(crate) fn from_exn<E: std::error::Error + Send + Sync + 'static>(err: Exn<E>) -> Self {
             Error {
                 inner: err.into_chain(),
             }
@@ -968,13 +976,14 @@ mod _impl {
     }
 }
 
+#[gix_macros::unstable]
 impl From<crate::Message> for crate::Error {
     /// Raise the message at the caller's location, including when converted with `.into()` or `?`.
     /// When used as a function pointer, caller tracking stops at the pointer's invocation shim;
     /// use a closure such as `|message| message.raise()` to capture a location in the calling code.
     #[track_caller]
     fn from(err: crate::Message) -> Self {
-        crate::Exn::new(err).into()
+        crate::Exn::new(err).into_error()
     }
 }
 
@@ -993,4 +1002,11 @@ pub(crate) fn is_transparent_marker(mut error: &(dyn std::error::Error + 'static
         error = nested.error();
     }
     error.is::<crate::ClassificationMarker>()
+}
+
+#[gix_macros::unstable]
+impl<E: std::error::Error + Send + Sync + 'static> From<crate::Exn<E>> for crate::Error {
+    fn from(err: crate::Exn<E>) -> Self {
+        Self::from_exn(err)
+    }
 }

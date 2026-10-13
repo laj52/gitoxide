@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## 1.0.0 (Unreleased)
+
+### New Features (BREAKING)
+
+ - Stabilize the minimal error boundary needed by `gix-tempfile` and `gix-lock`: `Error`, `Result`,
+   native-error construction and inspection, and `is_retryable()` and `is_permission_denied()`.
+   Support `error-print-location`. Require the non-default `unstable` feature for all other APIs,
+   including `Exn`, typed result aliases, extension traits, message macros, metadata, classification
+   details, test helpers, and conversions involving experimental types. The `bstr`, `anyhow`,
+   `auto-chain-error`, and `tree-error` features enable `unstable` too.
+   Experimental consumers must pin an exact crate version. Existing crate tests always enable
+   `unstable`; isolated downstream checks verify both the stable boundary and experimental access.
+
 ## 0.5.1 (2026-10-11)
 
 ### Bug Fixes

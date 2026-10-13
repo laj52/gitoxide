@@ -267,7 +267,7 @@ impl<E: Error + Send + Sync + 'static> Exn<E> {
     ///
     /// [Error]: crate::Error
     pub fn into_error(self) -> crate::Error {
-        self.into()
+        crate::Error::from_exn(self)
     }
 
     /// Convert this error tree into a chain of errors, breadth first, which flattens the tree

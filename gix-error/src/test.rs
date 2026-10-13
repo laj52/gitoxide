@@ -26,6 +26,7 @@ where
     }
 }
 
+#[gix_macros::unstable]
 impl From<TestError> for Error {
     fn from(error: TestError) -> Self {
         error.0

@@ -21,7 +21,7 @@ serde = ["dep:serde", "bstr/serde"]
 [dependencies]
 gix-path = { version = "^0.14.1", path = "../gix-path" }
 gix-utils = { version = "^0.5.2", path = "../gix-utils", features = ["bstr"] }
-gix-error = { version = "^0.5.2", path = "../gix-error", features = ["bstr"] }
+gix-error = { version = "=1.0.0", path = "../gix-error", features = ["unstable", "bstr"] }
 
 serde = { version = "1.0.114", optional = true, default-features = false, features = ["std", "derive"] }
 bstr = { version = "1.12.0", default-features = false, features = ["std"] }

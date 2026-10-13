@@ -23,4 +23,5 @@ pub(super) mod ext;
 pub(super) mod impls;
 pub use impls::{Frame, Untyped};
 
+#[cfg(feature = "unstable")]
 mod macros;

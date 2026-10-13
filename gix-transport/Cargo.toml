@@ -94,7 +94,7 @@ required-features = ["async-client"]
 gix-trace = { version = "^0.3.1", path = "../gix-trace" }
 gix-utils = { version = "^0.5.2", path = "../gix-utils", features = ["bstr"] }
 gix-command = { version = "^0.12.1", path = "../gix-command" }
-gix-error = { version = "^0.5.2", path = "../gix-error" }
+gix-error = { version = "=1.0.0", path = "../gix-error", features = ["unstable"] }
 gix-path = { version = "^0.14.1", path = "../gix-path" }
 gix-url = { version = "^0.40.1", path = "../gix-url" }
 gix-sec = { version = "^0.16.1", path = "../gix-sec" }

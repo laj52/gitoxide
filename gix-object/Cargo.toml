@@ -49,8 +49,8 @@ gix-date = { version = "^0.18.1", path = "../gix-date" }
 gix-utils = { version = "^0.5.2", path = "../gix-utils", features = ["progress"] }
 gix-command = { version = "^0.12.1", path = "../gix-command", optional = true }
 gix-path = { version = "^0.14.1", path = "../gix-path", optional = true }
-gix-error = { version = "^0.5.2", path = "../gix-error", features = ["bstr"] }
-gix-tempfile = { version = "^26.0.0", path = "../gix-tempfile", optional = true }
+gix-error = { version = "=1.0.0", path = "../gix-error", features = ["unstable", "bstr"] }
+gix-tempfile = { version = "^27.0.0", path = "../gix-tempfile", optional = true }
 
 itoa = "1.0.17"
 bstr = { version = "1.12.0", default-features = false, features = [

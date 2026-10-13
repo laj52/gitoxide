@@ -23,7 +23,7 @@ serde = ["dep:serde"]
 sirocco = ["dep:sirocco"]
 
 [dependencies]
-gix-error = { version = "^0.5.2", path = "../gix-error" }
+gix-error = { version = "=1.0.0", path = "../gix-error", features = ["unstable"] }
 zlib-rs = "0.6.2"
 sirocco = { version = "0.2.0", optional = true }
 serde = { version = "1.0.114", optional = true, default-features = false, features = ["derive"] }

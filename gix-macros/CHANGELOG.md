@@ -5,6 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### New Features
+
+ - Allow bare `#[gix_macros::unstable]` and field-level `#[unstable]` gates.
+   Supply a nonempty `reason = "..."` only when the rationale is not obvious;
+   enabled APIs retain an instability marker with or without a reason.
+
 ## 0.1.5 (2024-05-22)
 
 A maintenance release without user-facing changes.

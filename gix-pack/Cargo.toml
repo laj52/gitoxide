@@ -53,7 +53,7 @@ gix-zlib = { version = "^0.4.0", path = "../gix-zlib" }
 gix-path = { version = "^0.14.1", path = "../gix-path" }
 gix-hash = { version = "^0.28.1", path = "../gix-hash" }
 gix-chunk = { version = "^0.10.1", path = "../gix-chunk" }
-gix-error = { version = "^0.5.2", path = "../gix-error" }
+gix-error = { version = "=1.0.0", path = "../gix-error", features = ["unstable"] }
 gix-object = { version = "^0.66.1", path = "../gix-object" }
 gix-hashtable = { version = "^0.18.1", path = "../gix-hashtable", optional = true }
 
@@ -76,7 +76,7 @@ document-features = { version = "0.2.0", optional = true }
 
 
 [target.'cfg(not(target_arch = "wasm32"))'.dependencies]
-gix-tempfile = { version = "^26.0.0", default-features = false, path = "../gix-tempfile", optional = true }
+gix-tempfile = { version = "^27.0.0", default-features = false, path = "../gix-tempfile", optional = true }
 
 [dev-dependencies]
 gix-pack = { path = ".", features = ["sha1", "sha256", "pack-cache-lru-dynamic", "pack-cache-lru-static", "object-cache-dynamic", "serde", "testing"] }

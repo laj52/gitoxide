@@ -11,7 +11,7 @@ cargo-fuzz = true
 [dependencies]
 libfuzzer-sys = "0.4"
 gix-hash = { path = "../../gix-hash" }
-gix-error = { path = "../../gix-error" }
+gix-error = { path = "../../gix-error", features = ["unstable"] }
 bstr = { version = "1.5.0", default-features = false }
 
 [dependencies.gix-revision]

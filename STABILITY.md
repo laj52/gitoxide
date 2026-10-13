@@ -97,7 +97,35 @@ It's acceptable to let each breaking change be immediately followed by a minor v
 
 Released plumbing crates are marked with major version number 1 or above, for example `1.2.4` and live in stability tier 2 _(->ST2)_.
 
-*These crates may not expose parts of unstable crates in their public API*.
+*These crates may not expose parts of unstable crates in their supported public API*.
+
+A crate may offer additional experimental APIs behind a non-default `unstable` feature. These APIs are excluded
+from its compatibility guarantee; consumers using them must pin an exact version. `gix_macros::unstable` keeps
+annotated items available within the crate while exposing them publicly only with this feature enabled.
+Use a bare `#[gix_macros::unstable]` gate for self-explanatory exclusions; add a nonempty `reason = "..."`
+only when the rationale is not obvious. The reason, when supplied, is included in the enabled API's documentation.
+
+`gix-fs` limits its stable API to the operations needed by `gix-tempfile` and `gix-lock`: `dir::create::Retries`
+(including its public fields), `dir::create::all()`, `dir::remove::empty_upward_until_boundary()`, and
+`set_shared_repository_permissions()`. Other filesystem APIs remain experimental, including the creation/removal
+iterators, capability probing, file and symlink helpers, directory traversal, stacks, and snapshots.
+Its `serde` and `walkdir` features also enable `unstable` and are excluded from stable release checks.
+Stable release checks cover the supported feature profiles declared in `package.metadata.api-check.profiles`, excluding
+features listed in `package.metadata.smart-release.unstable-features`.
+
+Tests explicitly enable `unstable` on relevant dependencies so they can exercise the full API. Declare these opt-ins
+under `dev-dependencies`, or as normal dependencies of dedicated test-support crates such as `gix-testtools`.
+Cargo unifies these features when testing, even with `--no-default-features`; validate stable-only boundaries through
+isolated consumer probes or library API checks without dev-feature activation, not ordinary full-access tests.
+
+`gix-error` supports only `Error`, `Result`, native-error construction and inspection
+(`from_error()`, `from_boxed()`, `error()`, `iter_errors()`, and `downcast_any_ref()`), and
+the `is_retryable()` and `is_permission_denied()` predicates needed for lock recovery.
+The `error-print-location` feature is supported. Exceptions, extension traits, message constructors,
+classification details, metadata, test helpers, and their conversions require `unstable`.
+Its `bstr`, `anyhow`, `auto-chain-error`, and `tree-error` features also enable `unstable`.
+Stable consumers may use experimental helpers internally as long as their supported public API
+exposes only stable types; these internal users must pin an exact dependency version too.
 
 Breaking changes are collected and may be released no more often than every 4 weeks by incrementing the major version number.
 
